@@ -23,7 +23,6 @@ public class ProtagonistController : MonoBehaviour
 
     float moveSpeed = 1.0f;
     bool isJumping = false;
-    bool isLanding = false;
 
     bool walk = true;
     bool run = false;
@@ -38,7 +37,7 @@ public class ProtagonistController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         var vertical = Input.GetAxis("Vertical");
         var horizontal = Input.GetAxis("Horizontal");
@@ -75,7 +74,7 @@ public class ProtagonistController : MonoBehaviour
 
         animator.SetBool("blockPressed", block);
         animator.SetBool("attackPressed", attack);
-        
+
 
 
         if (isJumping == false)
@@ -100,16 +99,16 @@ public class ProtagonistController : MonoBehaviour
                     moveSpeed = sprintSpeed;
                     if (!Mathf.Approximately(jump, 0))
                     {
-                        startJump("sprintIsSource", sprintSpeed, sprintSpeed);
+                        startJump("sprintIsSource", moveSpeed, moveSpeed);
 
                     }
                 }
-                else if(this.run && !block)
+                else if (this.run && !block)
                 {
                     moveSpeed = runSpeed;
                     if (!Mathf.Approximately(jump, 0))
                     {
-                        startJump("runIsSource", runSpeed, runSpeed);
+                        startJump("runIsSource", moveSpeed, moveSpeed);
 
                     }
                 }
@@ -118,7 +117,7 @@ public class ProtagonistController : MonoBehaviour
                     moveSpeed = walkSpeed;
                     if (!Mathf.Approximately(jump, 0))
                     {
-                        startJump("walkIsSource", walkSpeed, walkSpeed);
+                        startJump("walkIsSource", moveSpeed, moveSpeed);
 
                     }
                 }
@@ -129,24 +128,26 @@ public class ProtagonistController : MonoBehaviour
                 animator.SetBool("backwardPressed", true);
                 if (!Mathf.Approximately(jump, 0))
                 {
-                    startJump("backwardsIsSource", moveSpeed, moveSpeed);
+                    startJump("backwardsIsSource", -moveSpeed, moveSpeed);
 
                 }
             }
 
-
-            //animator.SetTrigger("endJump");
-            var position = transform.forward * Time.deltaTime * moveSpeed * vertical;
-            if(block) { position *= blockingSpeedMultiplier; }
-            if(attack) { position *= attackingSpeedMultiplier; }
-            position += transform.position;
-            rigidBody.MovePosition(position);
+            if (isJumping == false)
+            {
+                //animator.SetTrigger("endJump");
+                var position = transform.forward * Time.deltaTime * moveSpeed * vertical;
+                if (block) { position *= blockingSpeedMultiplier; }
+                if (attack) { position *= attackingSpeedMultiplier; }
+                position += transform.position;
+                rigidBody.MovePosition(position);
+            }
         }
         else if (isJumping == true)
         {
             RaycastHit hit;
             //Debug.Log($"y velocity : {rigidBody.velocity.y}");
-            var maxDist = Mathf.Abs(rigidBody.velocity.y) < 1 ? 1 : Mathf.Abs(DistanceTraveledY(rigidBody)) * jumpTimeMultiplier;
+            var maxDist = Mathf.Abs(rigidBody.velocity.y) < .1f ? 1f : Mathf.Abs(DistanceTraveledY(rigidBody)) * jumpTimeMultiplier;
             if (rigidBody.velocity.y < 0 && Physics.Raycast(rigidBody.position, new Vector3(0, -1, 0), out hit, maxDist))
             {
                 Debug.Log("Hit");
@@ -157,20 +158,6 @@ public class ProtagonistController : MonoBehaviour
                 //Debug.Log("Miss");
             }
         }
-        //else if (isLanding == true)
-        //{
-        //    RaycastHit hit;
-        //    if (Physics.Raycast(rigidBody.position, -transform.up.normalized, out hit, 0.2f))
-        //    {
-        //        Debug.Log("Hit Ground");
-        //        animator.SetTrigger("Land");
-        //        isLanding = false;
-        //    }
-        //    else
-        //    {
-        //        //Debug.Log("Miss");
-        //    }
-        //}
         Vector3 rotate = new Vector3(0, horizontal * turnSpeed * Time.deltaTime / Mathf.Sqrt(moveSpeed), 0);
         transform.Rotate(rotate);
     }
@@ -196,7 +183,7 @@ public class ProtagonistController : MonoBehaviour
 
     public void startJump(string source, float currentSpeed, float up)
     {
-        if (isJumping == false && isLanding == false)
+        if (isJumping == false)
         {
             animator.SetBool("idleIsSource", false);
             animator.SetBool("sprintIsSource", false);
@@ -205,8 +192,9 @@ public class ProtagonistController : MonoBehaviour
             isJumping = true;
             animator.SetBool(source, true);
             animator.SetBool("jumpPressed", true);
-            var force = (transform.up.normalized * (up * 0.25f)) + (transform.forward.normalized * Mathf.Sqrt(currentSpeed));
-            //Debug.Log(force);
+
+
+            var force = (transform.up.normalized * (up * 0.5f)) + (transform.forward.normalized * (currentSpeed * .9f));
             rigidBody.AddForce(force, ForceMode.VelocityChange);
         }
     }
@@ -215,14 +203,14 @@ public class ProtagonistController : MonoBehaviour
     {
         Debug.Log("Begin Landing");
         isJumping = false;
-        animator.SetTrigger("endJump");
         animator.SetBool("jumpPressed", false);
+        animator.SetTrigger("endJump");
     }
 
     public float DistanceTraveledY(Rigidbody rigidBody)
     {
         var p1 = (Physics.gravity.y * Mathf.Pow(Time.deltaTime, 2)) + (rigidBody.velocity.y * Time.deltaTime);
-        Debug.Log($"Distance called: {p1}");
+        //Debug.Log($"Distance called: {p1}");
         return p1;
     }
 }
