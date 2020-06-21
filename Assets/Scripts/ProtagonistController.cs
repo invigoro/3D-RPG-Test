@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class ProtagonistController : MonoBehaviour
 {
@@ -16,10 +17,13 @@ public class ProtagonistController : MonoBehaviour
     public float blockingSpeedMultiplier = 0.75f;
     public float attackingSpeedMultiplier = 0.6f;
 
+    public GameObject weaponContainer;
+
 
     //private vars
     Animator animator;
     Rigidbody rigidBody;
+
 
     float moveSpeed = 1.0f;
     bool isJumping = false;
@@ -28,12 +32,20 @@ public class ProtagonistController : MonoBehaviour
     bool run = false;
     bool sprint = false;
 
+    GameObject activeWeapon
+    {
+        get
+        {
+            return weaponContainer?.GetComponentsInChildren<Transform>(false)?.Where(x => x.transform != weaponContainer.transform)?.FirstOrDefault()?.gameObject;
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
         rigidBody = GetComponent<Rigidbody>();
+        if (weaponContainer == null) weaponContainer = GetComponentsInChildren<Transform>()?.Where(x => x.gameObject.name == "WeaponRH")?.FirstOrDefault()?.gameObject;
     }
 
     // Update is called once per frame
@@ -48,6 +60,8 @@ public class ProtagonistController : MonoBehaviour
         var sprint = Input.GetAxis("Sprint");
         var block = !Mathf.Approximately(Input.GetAxis("Block"), 0);
         var attack = !Mathf.Approximately(Input.GetAxis("Attack"), 0);
+
+
 
         //set walk, run or sprint speed if input
         if (!Mathf.Approximately(walk, 0))
@@ -75,6 +89,11 @@ public class ProtagonistController : MonoBehaviour
         animator.SetBool("blockPressed", block);
         animator.SetBool("attackPressed", attack);
 
+        //change speed of attack based on weapon
+        if (attack)
+        {
+            animator.SetFloat("attackSwingSpeed", activeWeapon?.GetComponent<WeaponsScript>()?.speed ?? 1.0f);
+        }
 
 
         if (isJumping == false)

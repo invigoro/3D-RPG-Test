@@ -6045,6 +6045,7 @@ MonoBehaviour:
   jumpTimeMultiplier: 10
   blockingSpeedMultiplier: 0.75
   attackingSpeedMultiplier: 0.6
+  weaponContainer: {fileID: 323703649}
 --- !u!1 &1846973632 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1835842617629576, guid: 2ac80508b9bcad445b034e03eb1504a1,
