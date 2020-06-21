@@ -14,6 +14,7 @@ public class ProtagonistController : MonoBehaviour
     public float jumpTimeMultiplier = 10f;
 
     public float blockingSpeedMultiplier = 0.75f;
+    public float attackingSpeedMultiplier = 0.6f;
 
 
     //private vars
@@ -47,7 +48,7 @@ public class ProtagonistController : MonoBehaviour
         var run = Input.GetAxis("Run");
         var sprint = Input.GetAxis("Sprint");
         var block = !Mathf.Approximately(Input.GetAxis("Block"), 0);
-
+        var attack = !Mathf.Approximately(Input.GetAxis("Attack"), 0);
 
         //set walk, run or sprint speed if input
         if (!Mathf.Approximately(walk, 0))
@@ -73,6 +74,7 @@ public class ProtagonistController : MonoBehaviour
         animator.SetBool("sprint", this.sprint);
 
         animator.SetBool("blockPressed", block);
+        animator.SetBool("attackPressed", attack);
         
 
 
@@ -136,6 +138,7 @@ public class ProtagonistController : MonoBehaviour
             //animator.SetTrigger("endJump");
             var position = transform.forward * Time.deltaTime * moveSpeed * vertical;
             if(block) { position *= blockingSpeedMultiplier; }
+            if(attack) { position *= attackingSpeedMultiplier; }
             position += transform.position;
             rigidBody.MovePosition(position);
         }
