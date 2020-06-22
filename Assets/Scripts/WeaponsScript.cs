@@ -17,4 +17,15 @@ public class WeaponsScript : MonoBehaviour
     {
         
     }
+
+    void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("Collision Detected");
+        var script = other?.gameObject?.GetComponent<MonsterScript>();
+        if (script != null)
+        {
+            Debug.Log("Monster Detected");
+            script.Damage(damage);
+        }
+    }
 }

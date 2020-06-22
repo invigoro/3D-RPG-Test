@@ -38,9 +38,9 @@ public class WeaponSwapScript : MonoBehaviour
             var availableWeapons = this.GetComponentsInChildren<Transform>(true).Where(x => x != this.transform).Select(x => x.gameObject).ToList();
             var newWeaponIndex = availableWeapons.IndexOf(currentWeapon) + 1;
             newWeaponIndex = newWeaponIndex >= availableWeapons.Count() ? 0 : newWeaponIndex;
-            Debug.Log($"Array Length: {availableWeapons.Count()}, New Index: {newWeaponIndex}");
+            //Debug.Log($"Array Length: {availableWeapons.Count()}, New Index: {newWeaponIndex}");
             var newWeapon = availableWeapons[newWeaponIndex];
-            Debug.Log($"New Weapon: {newWeapon.name}");
+            //Debug.Log($"New Weapon: {newWeapon.name}");
             newWeapon.SetActive(true);
             currentWeapon.SetActive(false);
             currentWeapon = newWeapon;
